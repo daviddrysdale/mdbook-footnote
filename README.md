@@ -1,6 +1,7 @@
 # mdbook-footnote
 
-A preprocessor for [mdbook](https://github.com/rust-lang/mdBook) to support the inclusion of footnotes.
+A preprocessor for [mdbook](https://github.com/rust-lang/mdBook) to support the inclusion of automatically numbered
+footnotes.
 
 It turns this:
 
@@ -13,6 +14,11 @@ into:
 > Normal text<sup><a name="to-footnote-1"><a href="#footnote-1">1</a></a></sup> in body.
 
 with the footnotes accumulated at the bottom of the page, following an `<hr/>`.
+
+## Configuration
+
+The `markdown` boolean flag indicates whether footnotes should be emitted as MarkDown rather than HTML.  This is needed
+for any non-HTML backend.
 
 ## Installation
 
