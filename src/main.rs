@@ -4,7 +4,7 @@
 //!
 //! The `markdown` boolean config value indicates that MarkDown should be emitted for
 //! the generated footnotes, rather than HTML.
-use clap::{App, Arg, ArgMatches, SubCommand};
+use clap::{App, Arg, SubCommand};
 use lazy_static::lazy_static;
 use mdbook::{
     book::Book,
@@ -13,6 +13,8 @@ use mdbook::{
 };
 use regex::Regex;
 use std::{io, process};
+
+const NAME: &str = "footnote-preprocessor";
 
 pub fn make_app() -> App<'static, 'static> {
     App::new("footnote-preprocessor")
@@ -26,54 +28,23 @@ pub fn make_app() -> App<'static, 'static> {
 
 fn main() {
     let matches = make_app().get_matches();
-    let preprocessor = Footnote::default();
-
     if let Some(sub_args) = matches.subcommand_matches("supports") {
-        handle_supports(&preprocessor, sub_args);
-    } else if let Err(e) = handle_preprocessing(preprocessor) {
-        eprintln!("{}", e);
-        process::exit(1);
-    }
-}
+        let renderer = sub_args.value_of("renderer").expect("Required argument");
 
-fn handle_preprocessing(mut pre: Footnote) -> Result<(), Error> {
-    let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
-
-    if ctx.mdbook_version != mdbook::MDBOOK_VERSION {
-        // We should probably use the `semver` crate to check compatibility
-        // here...
-        eprintln!(
-            "Warning: The {} plugin was built against version {} of mdbook, \
-             but we're being called from version {}",
-            pre.name(),
-            mdbook::MDBOOK_VERSION,
-            ctx.mdbook_version
-        );
-    }
-
-    pre.md_footnotes = if let Some(toml::Value::Boolean(markdown)) =
-        ctx.config.get("preprocessor.footnote.markdown")
-    {
-        *markdown
+        // Signal whether the renderer is supported by exiting with 1 or 0.
+        if Footnote::supports_renderer(&renderer) {
+            process::exit(0);
+        } else {
+            process::exit(1);
+        }
     } else {
-        false
-    };
+        let (ctx, book) = CmdPreprocessor::parse_input(io::stdin()).expect("Failed to parse input");
+        let preprocessor = Footnote::new(&ctx);
 
-    let processed_book = pre.run(&ctx, book)?;
-    serde_json::to_writer(io::stdout(), &processed_book)?;
-
-    Ok(())
-}
-
-fn handle_supports(pre: &dyn Preprocessor, sub_args: &ArgMatches) -> ! {
-    let renderer = sub_args.value_of("renderer").expect("Required argument");
-    let supported = pre.supports_renderer(&renderer);
-
-    // Signal whether the renderer is supported by exiting with 1 or 0.
-    if supported {
-        process::exit(0);
-    } else {
-        process::exit(1);
+        let processed_book = preprocessor
+            .run(&ctx, book)
+            .expect("Failed to process book");
+        serde_json::to_writer(io::stdout(), &processed_book).expect("Faild to emit processed book");
     }
 }
 
@@ -88,9 +59,40 @@ pub struct Footnote {
     md_footnotes: bool,
 }
 
+impl Footnote {
+    fn new(ctx: &PreprocessorContext) -> Self {
+        if ctx.mdbook_version != mdbook::MDBOOK_VERSION {
+            // We should probably use the `semver` crate to check compatibility
+            // here...
+            eprintln!(
+                "Warning: The {} plugin was built against version {} of mdbook, \
+             but we're being called from version {}",
+                NAME,
+                mdbook::MDBOOK_VERSION,
+                ctx.mdbook_version
+            );
+        }
+        let md_footnotes = if let Some(toml::Value::Boolean(markdown)) =
+            ctx.config.get("preprocessor.footnote.markdown")
+        {
+            *markdown
+        } else {
+            false
+        };
+
+        Self { md_footnotes }
+    }
+
+    /// Indicate whether a renderer is supported.  This preprocessor can emit MarkDown so should support almost any
+    /// renderer.
+    fn supports_renderer(renderer: &str) -> bool {
+        renderer != "not-supported"
+    }
+}
+
 impl Preprocessor for Footnote {
     fn name(&self) -> &str {
-        "footnote-preprocessor"
+        NAME
     }
 
     fn run(&self, _ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
@@ -139,6 +141,6 @@ impl Preprocessor for Footnote {
     }
 
     fn supports_renderer(&self, renderer: &str) -> bool {
-        renderer != "not-supported"
+        Self::supports_renderer(renderer)
     }
 }
