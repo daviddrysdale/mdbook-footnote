@@ -6,14 +6,17 @@
 //! the generated footnotes, rather than HTML.
 use clap::{App, Arg, SubCommand};
 use lazy_static::lazy_static;
+use log::warn;
 use mdbook::{
     book::Book,
     errors::Error,
     preprocess::{CmdPreprocessor, Preprocessor, PreprocessorContext},
 };
 use regex::Regex;
+use std::collections::HashSet;
 use std::{io, process};
 
+/// Name of this preprocessor.
 const NAME: &str = "footnote-preprocessor";
 
 pub fn make_app() -> App<'static, 'static> {
@@ -52,6 +55,14 @@ fn main() {
 lazy_static! {
     static ref FOOTNOTE_RE: Regex =
         Regex::new(r"(?s)\{\{footnote:\s*(?P<content>.*?)\}\}").unwrap();
+
+    /// Names of known renderers which deal in HTML output.
+    static ref HTML_RENDERERS: HashSet<String> = {
+        let mut s = HashSet::new();
+        s.insert("html".to_owned());
+        s.insert("linkcheck".to_owned());
+        s
+    };
 }
 
 /// A pre-processor that expands {{footnote: ..}} markers.
@@ -65,7 +76,7 @@ impl Footnote {
         if ctx.mdbook_version != mdbook::MDBOOK_VERSION {
             // We should probably use the `semver` crate to check compatibility
             // here...
-            log::warn!(
+            warn!(
                 "The {} plugin was built against version {} of mdbook, \
              but we're being called from version {}",
                 NAME,
@@ -80,6 +91,13 @@ impl Footnote {
         } else {
             false
         };
+
+        if !md_footnotes && !HTML_RENDERERS.contains(&ctx.renderer) {
+            warn!(
+                "Emitting HTML footnotes for renderer '{}' which may not be HTML-based",
+                ctx.renderer,
+            );
+        }
 
         Self { md_footnotes }
     }
