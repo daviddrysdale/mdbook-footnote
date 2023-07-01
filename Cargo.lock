@@ -332,6 +332,19 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
+version = "0.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7"
+dependencies = [
+ "atty",
+ "humantime",
+ "log",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
+name = "env_logger"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85cdab6a89accf66733ad5a1693a4dcced6aeff64602b634530dd73c1f3ee9f0"
@@ -892,7 +905,7 @@ dependencies = [
  "clap 4.3.0",
  "clap_complete",
  "elasticlunr-rs",
- "env_logger",
+ "env_logger 0.10.0",
  "futures-util",
  "handlebars",
  "ignore",
@@ -919,7 +932,9 @@ name = "mdbook-footnote"
 version = "0.1.2"
 dependencies = [
  "clap 2.34.0",
+ "env_logger 0.9.3",
  "lazy_static",
+ "log",
  "mdbook",
  "regex",
  "serde_json",

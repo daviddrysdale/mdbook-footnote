@@ -27,6 +27,7 @@ pub fn make_app() -> App<'static, 'static> {
 }
 
 fn main() {
+    env_logger::init();
     let matches = make_app().get_matches();
     if let Some(sub_args) = matches.subcommand_matches("supports") {
         let renderer = sub_args.value_of("renderer").expect("Required argument");
@@ -64,8 +65,8 @@ impl Footnote {
         if ctx.mdbook_version != mdbook::MDBOOK_VERSION {
             // We should probably use the `semver` crate to check compatibility
             // here...
-            eprintln!(
-                "Warning: The {} plugin was built against version {} of mdbook, \
+            log::warn!(
+                "The {} plugin was built against version {} of mdbook, \
              but we're being called from version {}",
                 NAME,
                 mdbook::MDBOOK_VERSION,
