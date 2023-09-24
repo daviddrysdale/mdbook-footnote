@@ -136,9 +136,9 @@ impl Preprocessor for Footnote {
 
                 if !footnotes.is_empty() {
                     if self.md_footnotes {
-                        chap.content += "<p><hr/>\n";
-                    } else {
                         chap.content += "\n---\n";
+                    } else {
+                        chap.content += "<p><hr/>\n";
                     }
                     for (idx, content) in footnotes.into_iter().enumerate() {
                         if self.md_footnotes {
