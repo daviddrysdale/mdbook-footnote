@@ -25,4 +25,4 @@ clean:
 
 # Target that installs the version of mdbook used to create the sample/expected/ files
 dependencies:
-	cargo install mdbook@=0.4.28
+	cargo install mdbook@=0.5.1

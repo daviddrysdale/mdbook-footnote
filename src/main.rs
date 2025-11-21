@@ -6,10 +6,10 @@
 //! the generated footnotes, rather than HTML.
 use clap::{Arg, Command};
 use log::warn;
-use mdbook::{
-    book::Book,
+use mdbook_preprocessor::{
+    book::{Book, BookItem},
     errors::Error,
-    preprocess::{CmdPreprocessor, Preprocessor, PreprocessorContext},
+    Preprocessor, PreprocessorContext,
 };
 use regex::Regex;
 use std::collections::HashSet;
@@ -44,7 +44,8 @@ fn main() {
             process::exit(1);
         }
     } else {
-        let (ctx, book) = CmdPreprocessor::parse_input(io::stdin()).expect("Failed to parse input");
+        let (ctx, book) =
+            mdbook_preprocessor::parse_input(io::stdin()).expect("Failed to parse input");
         let preprocessor = Footnote::new(&ctx);
 
         let processed_book = preprocessor
@@ -73,21 +74,20 @@ pub struct Footnote {
 
 impl Footnote {
     fn new(ctx: &PreprocessorContext) -> Self {
-        if ctx.mdbook_version != mdbook::MDBOOK_VERSION {
+        if ctx.mdbook_version != mdbook_preprocessor::MDBOOK_VERSION {
             // We should probably use the `semver` crate to check compatibility
             // here...
             warn!(
-                "The {} plugin was built against version {} of mdbook, \
+                "The {NAME} plugin was built against version {} of mdbook, \
              but we're being called from version {}",
-                NAME,
-                mdbook::MDBOOK_VERSION,
+                mdbook_preprocessor::MDBOOK_VERSION,
                 ctx.mdbook_version
             );
         }
-        let md_footnotes = if let Some(toml::Value::Boolean(markdown)) =
+        let md_footnotes = if let Ok(Some(toml::Value::Boolean(markdown))) =
             ctx.config.get("preprocessor.footnote.markdown")
         {
-            *markdown
+            markdown
         } else {
             false
         };
@@ -116,7 +116,7 @@ impl Preprocessor for Footnote {
 
     fn run(&self, _ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
         book.for_each_mut(|item| {
-            if let mdbook::book::BookItem::Chapter(chap) = item {
+            if let BookItem::Chapter(chap) = item {
                 let mut footnotes = vec![];
                 chap.content = FOOTNOTE_RE
                     .replace_all(&chap.content, |caps: &regex::Captures| {
@@ -159,7 +159,7 @@ impl Preprocessor for Footnote {
         Ok(book)
     }
 
-    fn supports_renderer(&self, renderer: &str) -> bool {
-        Self::supports_renderer(renderer)
+    fn supports_renderer(&self, renderer: &str) -> Result<bool, Error> {
+        Ok(Self::supports_renderer(renderer))
     }
 }
