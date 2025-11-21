@@ -36,7 +36,7 @@ fn main() {
         let renderer = sub_args.value_of("renderer").expect("Required argument");
 
         // Signal whether the renderer is supported by exiting with 1 or 0.
-        if Footnote::supports_renderer(&renderer) {
+        if Footnote::supports_renderer(renderer) {
             process::exit(0);
         } else {
             process::exit(1);
