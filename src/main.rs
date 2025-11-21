@@ -19,7 +19,7 @@ use std::{io, process};
 /// Name of this preprocessor.
 const NAME: &str = "footnote-preprocessor";
 
-pub fn make_app() -> App<'static, 'static> {
+pub fn make_app() -> App<'static> {
     App::new("footnote-preprocessor")
         .about("An mdbook preprocessor which converts expands footnote markers")
         .subcommand(
