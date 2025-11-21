@@ -10,7 +10,7 @@ keywords = ["mdbook", "footnote"]
 categories = ["text-processing"]
 
 [dependencies]
-clap = "3"
+clap = "4.5"
 env_logger = "0.11.*"
 log = "0.4.*"
 mdbook = "^0.4.28"

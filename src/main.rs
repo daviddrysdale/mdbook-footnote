@@ -4,7 +4,7 @@
 //!
 //! The `markdown` boolean config value indicates that MarkDown should be emitted for
 //! the generated footnotes, rather than HTML.
-use clap::{App, Arg, SubCommand};
+use clap::{Arg, Command};
 use log::warn;
 use mdbook::{
     book::Book,
@@ -19,12 +19,12 @@ use std::{io, process};
 /// Name of this preprocessor.
 const NAME: &str = "footnote-preprocessor";
 
-pub fn make_app() -> App<'static> {
-    App::new("footnote-preprocessor")
+pub fn make_app() -> Command {
+    Command::new("footnote-preprocessor")
         .about("An mdbook preprocessor which converts expands footnote markers")
         .subcommand(
-            SubCommand::with_name("supports")
-                .arg(Arg::with_name("renderer").required(true))
+            Command::new("supports")
+                .arg(Arg::new("renderer").required(true))
                 .about("Check whether a renderer is supported by this preprocessor"),
         )
 }
@@ -33,7 +33,9 @@ fn main() {
     env_logger::init();
     let matches = make_app().get_matches();
     if let Some(sub_args) = matches.subcommand_matches("supports") {
-        let renderer = sub_args.value_of("renderer").expect("Required argument");
+        let renderer = sub_args
+            .get_one::<String>("renderer")
+            .expect("Required argument");
 
         // Signal whether the renderer is supported by exiting with 1 or 0.
         if Footnote::supports_renderer(renderer) {
