@@ -5,7 +5,6 @@
 //! The `markdown` boolean config value indicates that MarkDown should be emitted for
 //! the generated footnotes, rather than HTML.
 use clap::{App, Arg, SubCommand};
-use lazy_static::lazy_static;
 use log::warn;
 use mdbook::{
     book::Book,
@@ -14,6 +13,7 @@ use mdbook::{
 };
 use regex::Regex;
 use std::collections::HashSet;
+use std::sync::LazyLock;
 use std::{io, process};
 
 /// Name of this preprocessor.
@@ -52,18 +52,16 @@ fn main() {
     }
 }
 
-lazy_static! {
-    static ref FOOTNOTE_RE: Regex =
-        Regex::new(r"(?s)\{\{footnote:\s*(?P<content>.*?)\}\}").unwrap();
+static FOOTNOTE_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?s)\{\{footnote:\s*(?P<content>.*?)\}\}").unwrap());
 
-    /// Names of known renderers which deal in HTML output.
-    static ref HTML_RENDERERS: HashSet<String> = {
-        let mut s = HashSet::new();
-        s.insert("html".to_owned());
-        s.insert("linkcheck".to_owned());
-        s
-    };
-}
+/// Names of known renderers which deal in HTML output.
+static HTML_RENDERERS: LazyLock<HashSet<String>> = LazyLock::new(|| {
+    let mut s = HashSet::new();
+    s.insert("html".to_owned());
+    s.insert("linkcheck".to_owned());
+    s
+});
 
 /// A pre-processor that expands {{footnote: ..}} markers.
 #[derive(Default)]
