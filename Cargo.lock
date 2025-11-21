@@ -516,19 +516,6 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7"
-dependencies = [
- "atty",
- "humantime",
- "log",
- "regex",
- "termcolor",
-]
-
-[[package]]
-name = "env_logger"
 version = "0.11.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13c863f0904021b108aa8b2f55046443e6b1ebde8fd4a15c399893aae4fa069f"
@@ -777,12 +764,6 @@ name = "httpdate"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
-
-[[package]]
-name = "humantime"
-version = "2.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "135b12329e5e3ce057a9f972339ea52bc954fe1e9358ef27f95e89716fbc5424"
 
 [[package]]
 name = "hyper"
@@ -1147,7 +1128,7 @@ dependencies = [
  "clap 4.5.53",
  "clap_complete",
  "elasticlunr-rs",
- "env_logger 0.11.8",
+ "env_logger",
  "futures-util",
  "handlebars",
  "hex",
@@ -1177,7 +1158,7 @@ name = "mdbook-footnote"
 version = "0.1.2"
 dependencies = [
  "clap 2.34.0",
- "env_logger 0.9.3",
+ "env_logger",
  "lazy_static",
  "log",
  "mdbook",
@@ -1878,15 +1859,6 @@ dependencies = [
  "futf",
  "mac",
  "utf-8",
-]
-
-[[package]]
-name = "termcolor"
-version = "1.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
-dependencies = [
- "winapi-util",
 ]
 
 [[package]]
