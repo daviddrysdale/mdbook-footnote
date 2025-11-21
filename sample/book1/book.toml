@@ -1,0 +1,7 @@
+[book]
+authors = ["David Drysdale"]
+language = "en"
+src = "src"
+title = "Test Book"
+
+[preprocessor.footnote]
