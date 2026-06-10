@@ -63,6 +63,7 @@ static HTML_RENDERERS: LazyLock<HashSet<String>> = LazyLock::new(|| {
     let mut s = HashSet::new();
     s.insert("html".to_owned());
     s.insert("linkcheck".to_owned());
+    s.insert("linkcheck2".to_owned());
     s
 });
 
