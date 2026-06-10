@@ -3,7 +3,7 @@ BINARY=${HOME}/.cargo/bin/mdbook-footnote
 all: sample/book1/book/chapter_1.html sample/book2/book/chapter_1.html
 
 install: $(BINARY)
-$(BINARY): src/main.rs
+$(BINARY): src/main.rs Cargo.lock
 	cargo install --offline --path .
 
 sample/book1/book/chapter_1.html: sample/book1/src/chapter_1.md $(BINARY)
